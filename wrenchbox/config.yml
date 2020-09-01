@@ -1,0 +1,10 @@
+version: 0
+worker: 0
+name: 00000000-0000-0000-0000-000000000000
+config:
+  key: value
+  nested:
+    key: value
+  list:
+    - key: value
+    - key: value

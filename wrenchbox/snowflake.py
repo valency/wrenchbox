@@ -32,7 +32,7 @@ class Snowflake:
         s += self.twepoch
         return s / 1000
 
-    def generate(self, worker_id=31, data_center_id=31, sleep=lambda x: time.sleep(x / 1000.0), count=1):
+    def generate(self, worker_id, data_center_id=31, sleep=lambda x: time.sleep(x / 1000.0), count=1):
         """
         Generate a snowflake code
         :param worker_id: worker id, 0-31
@@ -70,7 +70,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true', default=False, help='show debug information')
     parser.add_argument('--twepoch', type=int, default=1483228800000, help='twitter epoch, default: 1483228800000')
+    parser.add_argument('-d', type=int, default=31, help='data center id, default: 31')
+    parser.add_argument('-w', type=int, required=True, help='worker id, 0-31')
     parser.add_argument('n', type=int, help='# of results')
     args, _ = parser.parse_known_args()
     setup_log(level=logging.DEBUG if args.debug else logging.INFO)
-    [print(i) for i in Snowflake(twepoch=args.twepoch).generate(count=args.n)]
+    [print(i) for i in Snowflake(twepoch=args.twepoch).generate(args.w, data_center_id=args.dc, count=args.n)]

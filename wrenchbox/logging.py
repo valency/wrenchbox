@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import time
 from datetime import datetime
 
 from django.utils.termcolors import colorize
@@ -46,6 +47,24 @@ def setup_log(level=logging.INFO, path=None, tag: str = None):
     logging.root.setLevel(level)
 
 
+def progress(count, total, prefix='', suffix='', length=60):
+    """
+    Show a progress bar
+    :param count: current progress
+    :param total: total progress
+    :param prefix: prefix shown before the progress bar
+    :param suffix: suffix shown after the progress bar
+    :param length: length of the progress bar, default: 60
+    :return: none
+    """
+    bar_len = length
+    filled_len = int(round(bar_len * count / float(total)))
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+    sys.stdout.write('%s[%s] %s%s%s\r' % (prefix, bar, percents, '%', ' ' + suffix))
+    sys.stdout.flush()
+
+
 if __name__ == "__main__":
     setup_log(level=logging.DEBUG, path='./log/', tag='wrenchbox')
     logging.debug('This is a DEBUG message.')
@@ -53,3 +72,6 @@ if __name__ == "__main__":
     logging.warning('This is a WARNING message.')
     logging.error('This is an ERROR message.')
     logging.critical('This is an CRITICAL message.')
+    for _i in range(100):
+        progress(_i, 100)
+        time.sleep(0.02)
