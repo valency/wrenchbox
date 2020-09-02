@@ -4,10 +4,10 @@ import logging
 import uuid
 
 import ruamel.yaml as yaml
-from munch import Munch
 
 from .logging import setup_log
 from .object import Dict2StrSafe
+from .object import Munch
 
 
 class Configuration(Dict2StrSafe):
@@ -28,12 +28,14 @@ class Configuration(Dict2StrSafe):
             data = json.loads(data)
         else:
             raise ValueError('config file must end with "yml", "yaml", or "json"')
-        data = Munch(data)
-        for i in data:
-            if not i.startswith('_') or i.startswith('.'):
-                setattr(self, i, data[i])
+        for k, v in data.items():
+            if not k.startswith('_') and not k.startswith('.'):
+                if isinstance(v, dict):
+                    setattr(self, k, Munch(v))
+                else:
+                    setattr(self, k, v)
             else:
-                logging.warning('Config key starts with "_" or "." will be ignored: {}'.format(i))
+                logging.debug('Config key starts with "_" or "." will be ignored: {}'.format(k))
         if self.version is None:
             logging.warning('Configuration version is not set and may cause compatibility problems.')
         elif self.version not in version:
@@ -46,4 +48,4 @@ if __name__ == '__main__':
     parser.add_argument('config', type=str, help='config file')
     args, _ = parser.parse_known_args()
     setup_log(level=logging.DEBUG if args.debug else logging.INFO)
-    print(json.dumps(Configuration(args.config).__dict__, indent=2))
+    print(json.dumps(json.loads(str(Configuration(args.config))), indent=2))

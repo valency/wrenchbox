@@ -13,3 +13,20 @@ class Dict2StrSafe:
             else:
                 s[k] = v
         return json.dumps(s, default=lambda i: str(i))
+
+
+class Munch(Dict2StrSafe):
+    def __init__(self, m: dict):
+        """
+        A better implementation of munch
+        :param m: a dict
+        """
+        for k, v in m.items():
+            if isinstance(v, dict):
+                setattr(self, k, Munch(v))
+            else:
+                setattr(self, k, v)
+
+
+if __name__ == '__main__':
+    print(json.dumps(json.loads(str(Munch({'a': 1, 'b': {'a': 1, 'b': 2}}))), indent=2))

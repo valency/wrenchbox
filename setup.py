@@ -7,7 +7,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name='wrenchbox',
-    version='0.9.2b',
+    version='0.9.2c',
     packages=find_packages(),
     include_package_data=True,
     url='https://github.com/valency/wrenchbox',
@@ -20,7 +20,6 @@ setup(
     install_requires=[
         'django',
         'requests',
-        'munch',
         'python-dateutil'
     ]
 )
