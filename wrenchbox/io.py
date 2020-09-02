@@ -21,11 +21,20 @@ class BufferedWriter:
         self.buffer = buffer
 
     def write(self, data):
+        """
+        Write data to file
+        :param data: one line of data
+        :return: none
+        """
         self.data.append(data)
         if len(self.data) >= self.buffer:
             self.out()
 
     def out(self):
+        """
+        Immediately write all buffers to file
+        :return: none
+        """
         if len(self.data):
             batch = self.data[:self.buffer]
             self.data = self.data[self.buffer:]
@@ -37,6 +46,10 @@ class BufferedWriter:
                     f.write((str(i) + '\n').encode('utf-8'))
 
     def close(self):
+        """
+        Close the writer and write remaining buffer to file
+        :return: none
+        """
         self.out()
 
 

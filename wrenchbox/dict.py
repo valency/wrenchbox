@@ -51,36 +51,26 @@ class EnhancedDict:
                 result[k] = v
         return result
 
-    #   def format(self, formatter, filter=None):
-    # def format(self, source, formatter, include_list=True):
-    #     """
-    #     Replace the values of a dict with certain type to other values
-    #     :param source: the source type, e.g., int
-    #     :param formatter: the formatter method, e.g., return the string format of an int
-    #     :param include_list: whether list should be formatted, otherwise list will be considered as source type
-    #     :return: formatted dictionary (self.d)
-    #     """
-    #     for k, v in self.d.items():
-    #         if include_list and isinstance(v, list):
-    #             self.d.k = [EnhancedDict(i).replace(source, formatter, include_list) if isinstance(i, dict) for i in v]
-    #         elif isinstance(value, dict):
-    #             dd[key] = dict_format_type(value, source, formatter)
-    #         elif isinstance(value, source):
-    #             dd[key] = formatter(value)
-    #         else:
-    #             dd[key] = value
-    #
-    #     if not isinstance(d, dict):
-    #         if isinstance(d, source):
-    #             return formatter(d)
-    #         else:
-    #             return d
-    #     else:
-    #         dd = dict()
-    #         for key, value in d.items():
-    #
-    #         return dd
-    #
+    def format(self, formatter, picker=None):
+        """
+        Format the values of the dict
+        :param formatter: formatter method, e.g., return the string format of an int
+        :param picker: picker method, e.g., return not none
+        :return: formatted dictionary (self.d)
+        """
+        for k in self.d.keys():
+            if isinstance(self.d[k], list):
+                self.d[k] = EnhancedList(self.d[k]).format(
+                    lambda x: EnhancedDict(x).format(formatter, picker) if isinstance(x, dict) else (
+                        formatter(x) if picker is None or (picker is not None and picker(x)) else x
+                    )
+                )
+            elif isinstance(self.d[k], dict):
+                self.d[k] = EnhancedDict(self.d[k]).format(formatter, picker)
+            elif picker is None or (picker is not None and picker(self.d[k])):
+                self.d[k] = formatter(self.d[k])
+        return self.d
+
     # def dict_remove_key(d, k):
     #     """
     #     Recursively remove a key from a dict
@@ -221,3 +211,4 @@ if __name__ == "__main__":
     print(EnhancedDict(dict_a).search('a'))
     print(EnhancedDict(dict_a).merge(dict_b))
     print(EnhancedDict(dict_b).flatten())
+    print(EnhancedDict(dict_a).format(lambda x: x + 10, lambda x: x == 1))

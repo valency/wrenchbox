@@ -75,4 +75,4 @@ if __name__ == '__main__':
     parser.add_argument('n', type=int, help='# of results')
     args, _ = parser.parse_known_args()
     setup_log(level=logging.DEBUG if args.debug else logging.INFO)
-    [print(i) for i in Snowflake(twepoch=args.twepoch).generate(args.w, data_center_id=args.dc, count=args.n)]
+    [print(i) for i in Snowflake(twepoch=args.twepoch).generate(args.w, data_center_id=args.d, count=args.n)]

@@ -3,6 +3,10 @@ class EnhancedList:
         self.r = r.copy()
 
     def flatten(self):
+        """
+        Remove all sub-lists of the list
+        :return: flattened list
+        """
         result = []
         for i in self.r:
             if isinstance(i, list):
@@ -12,6 +16,12 @@ class EnhancedList:
         return result
 
     def pick(self, picker, reverse=False):
+        """
+        Pick values from the original list
+        :param picker: picker method, e.g,: return true if value is not none
+        :param reverse: return values that do not match the picker
+        :return: picked list
+        """
         result = []
         for i in self.r:
             if isinstance(i, list):
@@ -24,10 +34,16 @@ class EnhancedList:
         return result
 
     def format(self, formatter, picker=None):
+        """
+        Format the values of the list
+        :param formatter: formatter method, e.g., return the string format of an int
+        :param picker: picker method, e.g., return not none
+        :return: formatted list (self.r)
+        """
         for i in range(len(self.r)):
             if isinstance(self.r[i], list):
                 self.r[i] = EnhancedList(self.r[i]).format(formatter, picker)
-            elif picker is not None and picker(self.r[i]):
+            elif picker is None or (picker is not None and picker(self.r[i])):
                 self.r[i] = formatter(self.r[i])
         return self.r
 
