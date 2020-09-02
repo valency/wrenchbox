@@ -21,7 +21,7 @@ class EnhancedDict:
                 if isinstance(v, dict):
                     result += EnhancedDict(v).search(key, full, dive)
                 elif isinstance(v, list):
-                    result += EnhancedList(v).format(lambda x: EnhancedDict(x).search(key, full, dive) if isinstance(x, dict) else None)
+                    result += EnhancedList(EnhancedList(v).format(lambda x: EnhancedDict(x).search(key, full, dive) if isinstance(x, dict) else None)).flatten()
         return result
 
     def merge(self, d: dict):
