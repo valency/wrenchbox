@@ -16,12 +16,18 @@ class Dict2StrSafe:
 
 
 class Munch(Dict2StrSafe):
-    def __init__(self, m: dict):
+    def __init__(self, m: dict = None, **kwargs):
         """
         A better implementation of munch
         :param m: a dict
         """
-        for k, v in m.items():
+        if m:
+            for k, v in m.items():
+                if isinstance(v, dict):
+                    setattr(self, k, Munch(v))
+                else:
+                    setattr(self, k, v)
+        for k, v in kwargs.items():
             if isinstance(v, dict):
                 setattr(self, k, Munch(v))
             else:
@@ -29,4 +35,4 @@ class Munch(Dict2StrSafe):
 
 
 if __name__ == '__main__':
-    print(json.dumps(json.loads(str(Munch({'a': 1, 'b': {'a': 1, 'b': 2}}))), indent=2))
+    print(json.dumps(json.loads(str(Munch({'a': 1, 'b': {'a': 1, 'b': 2}}, a=3, c=1))), indent=2))
