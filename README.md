@@ -7,7 +7,7 @@ A set of utilities for daily development.
 ## Install
 
 ```shell
-pip install wrenchbox
+pip install -U wrenchbox
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ from wrenchbox.alert import DingTalk
 DingTalk('token').send('This is a warning message.')
 ```
 
-```
+```json
 200
 ```
 
@@ -127,7 +127,7 @@ When initialising `T`, it is possible to pass the following arguments:
 
 An advanced dictionary hander providing various tools.
 
-提供了多种多样的字典（dict）工具。
+提供了多种多样的字典（dict）处理工具。
 
 ```python
 from wrenchbox.dict import EnhancedDict
@@ -181,29 +181,114 @@ An advanced IO handerl providing various tools.
 
 提供了多种多样的 IO 工具。
 
-```
-dd
+```python
+from wrenchbox.io import BufferedWriter
+w = BufferedWriter(buffer=50)
+for i in range(100):
+    w.write(i)    
+w.close()
 ```
 
+The above code will write two separate files with 50 records each.
 
+### List Hanlder
+
+An advanced list hander providing various tools.
+
+提供了多种多样的列表（list）处理工具。
+
+```python
+from wrenchbox.list import EnhancedList
+list_a = [1, [1, [2, 3], 2], 2]
+print(list_a)
+print(EnhancedList(list_a).flatten()) # Flatten the list and put all sub-lists into the root level
+print(EnhancedList(list_a).pick(lambda x: x == 1)) # Pick values based on a function
+print(EnhancedList(list_a).format(lambda x: x + 1, lambda x: isinstance(x, (int, float)))) # Format values of the list through a filter
+```
+
+```json
+[1, [1, [2, 3], 2], 2]
+[1, 1, 2, 3, 2, 2]
+[1, [1]]
+[[[2, 3], 2], 2]
+[2, [2, [3, 4], 3], 3]
+```
+
+### Logging Tools
+
+A series of tools for logging.
+
+提供了美化的日志工具。
+
+```python
+from wrenchbox.logging import setup_log, progress
+# Create a colorized logger and print logging messages
+setup_log(level=logging.DEBUG, path='./log/', tag='wrenchbox')
+logging.debug('This is a DEBUG message.')
+logging.info('This is an INFO message.')
+logging.warning('This is a WARNING message.')
+logging.error('This is an ERROR message.')
+logging.critical('This is an CRITICAL message.')
+# Show a progress bar
+for _i in range(100):
+    progress(_i, 100)
+    time.sleep(0.02)
+```
+
+```
+[2020-09-28 10:18:40,084] This is a DEBUG message.
+[2020-09-28 10:18:40,084] This is an INFO message.
+[2020-09-28 10:18:40,084] This is a WARNING message.
+[2020-09-28 10:18:40,085] This is an ERROR message.
+[2020-09-28 10:18:40,085] This is an CRITICAL message.
+[==========================================================--] 97.0%
+```
+
+Logs are colorized with the following default config:
+
+```json
+{
+    DEBUG: 'cyan',
+    INFO: 'green',
+    WARNING: 'yellow',
+    ERROR: 'red',
+    CRITICAL: 'magenta'
+}
+```
+
+### Number Hanlder
+
+An advanced number hander providing various tools.
+
+提供了多种多样的数字（number）处理工具。
+
+```python
+from wrenchbox.number import EnhancedDecimal
+print(EnhancedDecimal('3.1415926').round(Decimal('0.1'))) # Round a decimal with any unit like in excel
+```
+
+```json
+3.1
+```
+
+### Object Tools
+
+A series of objects for specific uses.
+
+提供了一些杂项对象。
+
+- `Dict2StrSafe`: a class that correctly converts `self.__dict__` to a JSON string without errors
+- `Munch`: an alternative implementation of [Munch](https://github.com/Infinidat/munch)
 
 ### Snowflake Code Generator
 
-生成若干 [Twitter Snowflake Codes](https://developer.twitter.com/en/docs/basics/twitter-ids)，原理和 [Go 版本](https://git.forchange.cn/framework/snowflake/)一致。
+Generate a series of [Twitter Snowflake Codes](https://developer.twitter.com/en/docs/basics/twitter-ids).
 
-#### 使用方法：
+生成若干 [Twitter Snowflake Codes](https://developer.twitter.com/en/docs/basics/twitter-ids)。
 
-Python 方式：
-
-```python
-from migrator.common.snowflake import Snowflake
-print(next(Snowflake(twepoch=1483228800000).generate(31)))
-```
-
-命令行方式：
 ```shell
-$ python3 -u -m migrator.common.snowflake -h
-usage: snowflake.py [-h] [--debug] [--twepoch TWEPOCH] [--dc DC] -w W n
+$ python3 -u -m wrenchbox.snowflake -h
+usage: snowflake.py [-h] [--debug] [--twepoch TWEPOCH] [-d D] -w W n
 
 positional arguments:
   n                  # of results
@@ -212,33 +297,36 @@ optional arguments:
   -h, --help         show this help message and exit
   --debug            show debug information
   --twepoch TWEPOCH  twitter epoch, default: 1483228800000
-  --dc DC            data center id, default: 31
-  -w W               worker id
+  -d D               data center id, default: 31
+  -w W               worker id, 0-31
+```
+```python
+from wrenchbox.snowflake import Snowflake
+print(next(Snowflake(twepoch=1483228800000).generate(31)))
 ```
 
-### YAML Config Reader
+```json
+495059711868006400
+```
 
-从 YAML 中读取一套配置文件。
+### String Handler
 
-#### 使用方法：
+An advanced string hander providing various tools.
 
-Python 方式：
+提供了多种多样的字符串（string）处理工具。
 
 ```python
-from migrator.common.config import Configuration
-print(Configuration('migrator/uac/uac.yml', (0,1)))
+from wrenchbox.string import digits, random_chars, random_letters, random_numbers
+print(digits(pi)) # Count the digits of a given float number
+print(random_chars(3)) # Generate a random string from [a-zA-Z0-9]
+print(random_letters(3)) # Generate a random string from [a-zA-Z]
+print(random_numbers(3)) # Generate a random string from [0-9]
 ```
 
-命令行方式：
-
-```shell
-$ python3 -u -m migrator.common.config -h
-usage: config.py [-h] [--debug] config
-
-positional arguments:
-  config      config file
-
-optional arguments:
-  -h, --help  show this help message and exit
-  --debug     show debug information
 ```
+15
+63f
+FVK
+007
+```
+

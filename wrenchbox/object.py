@@ -18,7 +18,7 @@ class Dict2StrSafe:
 class Munch(Dict2StrSafe):
     def __init__(self, m: dict = None, **kwargs):
         """
-        A better implementation of munch
+        An alternative implementation of munch
         :param m: a dict
         """
         if m:
