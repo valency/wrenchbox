@@ -95,6 +95,30 @@ The following configurations will be automatically generated if not provided:
 
 All configuration keys starting with `-` or `.` will be ignored (these keys should be used as audition only).
 
+### Database Hanlder
+
+An advanced database handler based on [SQLAlchemy](https://www.sqlalchemy.org/).
+
+一个基于 [SQLAlchemy](https://www.sqlalchemy.org/) 开发的更简单的数据库处理模块。
+
+```python
+from wrenchbox.database import DatabaseHandler
+DatabaseHandler({
+    'test': 'sqlite:///test.db'
+}, [
+    ('test', 'test')
+]).handle(
+    'test', {
+        'id': 1
+    }, {
+        'id': 1,
+        'name': str(datetime.now())
+    }, replace=True
+)
+```
+
+The above code will insert or update a record with `id` = `1`.
+
 ### Datetime Hanlder
 
 An advanced datetime handler based on [python-dateutil](https://pypi.org/project/python-dateutil/).

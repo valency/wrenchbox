@@ -1,9 +1,13 @@
+import argparse
 import logging
+from datetime import datetime
 
 from munch import Munch
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+
+from .logging import setup_log
 
 
 class Database:
@@ -32,9 +36,14 @@ class Table:
             logging.info('Alternative table is provided: %s.%s', database, table)
             self.model = alt_table
         elif getattr(pool, database).base is not None:
-            self.model = getattr(getattr(pool, database).base.classes, table)
+            try:
+                self.model = getattr(getattr(pool, database).base.classes, table)
+            except AttributeError as exp:
+                if table in getattr(pool, database).base.metadata.tables.keys():
+                    logging.critical('Cannot find table (mainly caused by missing primary key): %s.%s', database, table)
+                raise exp
         else:
-            logging.critical('Cannot find table: %s.%s', database, table)
+            logging.critical('No database is provided for table: %s.%s', database, table)
 
 
 class DatabaseHandler:
@@ -120,3 +129,26 @@ class DatabaseHandler:
                     setattr(k, key, value)
             self.commit(c.session, k)
         return k
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', default=False, help='show debug information')
+    parser.add_argument('--replace', action='store_true', default=False, help='replace existing records')
+    parser.add_argument('--id', type=int, default=1, help='test id, default: 1')
+    parser.add_argument('db', type=str, help='database url')
+    parser.add_argument('table', type=str, help='table name, must have columns of "id" and "name"')
+    args, _ = parser.parse_known_args()
+    setup_log(level=logging.DEBUG if args.debug else logging.INFO)
+    DatabaseHandler({
+        'test': args.db
+    }, [
+        ('test', 'test')
+    ]).handle(
+        'test', {
+            'id': args.id
+        }, {
+            'id': args.id,
+            'name': str(datetime.now())
+        }, replace=args.replace
+    )
