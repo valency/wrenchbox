@@ -354,3 +354,32 @@ FVK
 007
 ```
 
+### Text Handler
+
+A set of advanced text processing modules.
+
+提供了多种多样的文本处理工具。
+
+```shell
+$ python3 -u -m wrenchbox.text -h
+usage: text.py [-h] [--debug] [--chinese] [-p P] f
+
+positional arguments:
+  f           file path
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --debug     show debug information
+  --chinese   specify the input as Chinese
+  -p P        part of speech to show, only works for Chinese
+```
+
+```python
+from wrenchbox.text import S
+print([i for i in S(open('test.txt', 'r').read()).v(chinese=True).words if i[1] in ('v',)])
+```
+
+```json
+[('是', 'v', 8), ('获取', 'v', 1)]
+```
+
