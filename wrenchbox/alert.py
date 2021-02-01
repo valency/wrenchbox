@@ -12,13 +12,22 @@ class DingTalk:
     def __init__(self, access_token):
         self.access_token = access_token
 
-    def send(self, msg):
-        return requests.post('{}send?access_token={}'.format(self.base_url, self.access_token), json={
-            'msgtype': 'text',
-            'text': {
+    def send(self, msg, msg_type='text', title='ERROR'):
+        m = {
+            'msgtype': msg_type
+        }
+        if msg_type == 'text':
+            m['text'] = {
                 'content': msg
             }
-        })
+        elif msg_type == 'markdown':
+            m['markdown'] = {
+                'title': title,
+                'text': msg
+            }
+        else:
+            raise ValueError('unknown msg type: {}'.format(msg_type))
+        return requests.post('{}send?access_token={}'.format(self.base_url, self.access_token), json=m)
 
 
 if __name__ == '__main__':

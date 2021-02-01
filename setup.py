@@ -7,7 +7,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name='wrenchbox',
-    version='0.11.17',
+    version='1.2.1',
     packages=find_packages(),
     include_package_data=True,
     url='https://github.com/valency/wrenchbox',
