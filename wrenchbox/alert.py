@@ -38,4 +38,4 @@ if __name__ == '__main__':
     parser.add_argument('msg', type=str, help='the message')
     args, _ = parser.parse_known_args()
     setup_log(level=logging.DEBUG if args.debug else logging.INFO)
-    print({'dingtalk': DingTalk}[args.type](args.token).send(args.msg).status_code)
+    print({'dingtalk': DingTalk}[args.type](args.token).send(args.msg).text)
