@@ -12,7 +12,7 @@ from .logging import setup_log
 
 class Database:
     def __init__(self, url: str, schema: str = None, allow_empty: bool = False):
-        logging.info('Connecting: %s', url)
+        logging.debug('Connecting: %s', url)
         self.url = url
         self.schema = schema
         self.engine = create_engine(self.url, connect_args={'options': '-csearch_path={}'.format(self.schema)} if self.schema is not None else dict())
@@ -22,18 +22,18 @@ class Database:
             self.base.prepare(self.engine, reflect=True)
         except Exception as exp:
             if allow_empty:
-                logging.warning('Cannot map tables, an empty base will be created: %s', self.url)
+                logging.debug('Cannot map tables, an empty base will be created: %s', self.url)
                 self.base = None
             else:
                 raise exp
-        logging.info('Connection is established: %s', self.url)
+        logging.debug('Connection is established: %s', self.url)
 
 
 class Table:
     def __init__(self, pool: Munch, database: str, table: str, alt_table=None):
         self.session = getattr(pool, database).session
         if alt_table is not None:
-            logging.info('Alternative table is provided: %s.%s', database, table)
+            logging.debug('Alternative table is provided: %s.%s', database, table)
             self.model = alt_table
         elif getattr(pool, database).base is not None:
             try:
@@ -53,7 +53,7 @@ class DatabaseHandler:
         :param databases: a dict of databases such like {'db':'url',...}
         :param tables: a list of tuples such like [('db','table'),...]
         """
-        logging.info('Init database handler...')
+        logging.debug('Init database handler...')
         self.config = Munch(
             databases=databases,
             tables=tables,
@@ -64,8 +64,8 @@ class DatabaseHandler:
         if len(self.config.databases) and len(self.config.tables):
             self.connect(True)
         else:
-            logging.warning('No database or table info are provided, an empty database handler will be created.')
-        logging.info('Initialization of database handler is completed.')
+            logging.debug('No database or table info are provided, an empty database handler will be created.')
+        logging.debug('Initialization of database handler is completed.')
 
     def connect(self, reconnect: bool = False):
         if reconnect:
@@ -77,15 +77,15 @@ class DatabaseHandler:
             else:
                 alt_table = None
             if getattr(self.db, table[0], None) is None:
-                logging.info('Creating database connection: %s', table[0])
+                logging.debug('Creating database connection: %s', table[0])
                 setattr(self.db, table[0], Database(
                     self.config.databases[table[0]],
                     schema='public' if self.config.databases[table[0]].startswith('postgresql') else None,
                     allow_empty=alt_table is not None
                 ))
-                logging.info('Database connection is established: %s', table[0])
+                logging.debug('Database connection is established: %s', table[0])
             setattr(self.o, table[1], Table(self.db, table[0], table[1], alt_table=alt_table))
-            logging.info('Table is synced: %s.%s', table[0], table[1])
+            logging.debug('Table is synced: %s.%s', table[0], table[1])
 
     @staticmethod
     def commit(session, item):
