@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from munch import Munch
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from .logging import setup_log
 
 
 class Database:
-    def __init__(self, url: str, schema: str = None, allow_empty: bool = False):
+    def __init__(self, url: str, schema: str = None, allow_empty: bool = False, tables=None):
         logging.debug('Connecting: %s', url)
         self.url = url
         self.schema = schema
@@ -19,7 +19,8 @@ class Database:
         self.session = Session(self.engine)
         try:
             self.base = automap_base()
-            self.base.prepare(self.engine, reflect=True)
+            self.base.prepare(self.engine)
+            MetaData().reflect(self.engine, only=tables)
         except Exception as exp:
             if allow_empty:
                 logging.debug('Cannot map tables, an empty base will be created: %s', self.url)
@@ -81,7 +82,8 @@ class DatabaseHandler:
                 setattr(self.db, table[0], Database(
                     self.config.databases[table[0]],
                     schema='public' if self.config.databases[table[0]].startswith('postgresql') else None,
-                    allow_empty=alt_table is not None
+                    allow_empty=alt_table is not None,
+                    tables=[i[1] for i in self.config.tables]
                 ))
                 logging.debug('Database connection is established: %s', table[0])
             setattr(self.o, table[1], Table(self.db, table[0], table[1], alt_table=alt_table))
