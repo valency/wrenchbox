@@ -1,4 +1,26 @@
+import json
+
 from .list import EnhancedList
+
+
+class PrintableDict:
+    # A class that correctly converts self.__dict__ to json string without errors
+    def __str__(self):
+        def handler(o):
+            if isinstance(o, list):
+                return [handler(i) for i in o]
+            elif isinstance(o, dict):
+                dd = dict()
+                for kk, vv in o.items():
+                    dd[kk] = handler(vv)
+                return dd
+            else:
+                return o
+
+        d = dict()
+        for k, v in self.__dict__.items():
+            d[k] = handler(v)
+        return json.dumps(d, default=lambda i: str(i))
 
 
 class EnhancedDict:
@@ -71,42 +93,44 @@ class EnhancedDict:
                 self.d[k] = formatter(self.d[k])
         return self.d
 
-    # def dict_remove_key(d, k):
-    #     """
-    #     Recursively remove a key from a dict
-    #     :param d: the dictionary
-    #     :param k: key which should be removed
-    #     :return: formatted dictionary
-    #     """
-    #     if isinstance(d, dict):
-    #         dd = dict()
-    #         for key, value in d.items():
-    #             if not key == k:
-    #                 dd[key] = dict_remove_key(value, k)
-    #         return dd
-    #     elif isinstance(d, list):
-    #         return [dict_remove_key(i, k) for i in d]
-    #     else:
-    #         return d
-    #
-    # def dict_remove_value(d, v):
-    #     """
-    #     Recursively remove keys with a certain value from a dict
-    #     :param d: the dictionary
-    #     :param v: value which should be removed
-    #     :return: formatted dictionary
-    #     """
-    #     dd = dict()
-    #     for key, value in d.items():
-    #         if not value == v:
-    #             if isinstance(value, dict):
-    #                 dd[key] = dict_remove_value(value, v)
-    #             elif isinstance(value, list):
-    #                 dd[key] = [dict_remove_value(i, v) for i in value]
-    #             else:
-    #                 dd[key] = value
-    #     return dd
-    #
+    def remove_key(self, k):
+        """
+        Recursively remove a key from a dict
+        :param k: key which should be removed
+        :return: formatted dictionary (self.d)
+        """
+        dd = dict()
+        for key, value in self.d.items():
+            if key != k:
+                if isinstance(value, dict):
+                    dd[key] = EnhancedDict(value).remove_key(k)
+                elif isinstance(value, list):
+                    # TODO: list is only handled once, not working for nested lists
+                    dd[key] = [EnhancedDict(i).remove_key(k) if isinstance(i, dict) else i for i in value]
+                else:
+                    dd[key] = value
+        self.d = dd
+        return self.d
+
+    def remove_value(self, v):
+        """
+        Recursively remove keys with a certain value from a dict
+        :param v: value which should be removed
+        :return: formatted dictionary
+        """
+        dd = dict()
+        for key, value in self.d.items():
+            if value != v:
+                if isinstance(value, dict):
+                    dd[key] = EnhancedDict(value).remove_value(v)
+                elif isinstance(value, list):
+                    # TODO: list is only handled once, not working for nested lists
+                    dd[key] = [EnhancedDict(i).remove_value(v) if isinstance(i, dict) else i for i in value]
+                else:
+                    dd[key] = value
+        self.d = dd
+        return self.d
+
     # def dict_as_tuple_list(d, as_list=False):
     #     """
     #     Format a dict to a list of tuples
@@ -180,7 +204,7 @@ class EnhancedDict:
 
 if __name__ == "__main__":
     dict_a = {
-        'a': 1,
+        'a': 'a',
         'b': {
             'a': 1,
             'b': {
@@ -211,4 +235,6 @@ if __name__ == "__main__":
     print(EnhancedDict(dict_a).search('a'))
     print(EnhancedDict(dict_a).merge(dict_b))
     print(EnhancedDict(dict_b).flatten())
-    print(EnhancedDict(dict_a).format(lambda x: x + 10, lambda x: x == 1))
+    print(EnhancedDict(dict_a).format(lambda x: x + 10, lambda x: isinstance(x, int)))
+    print(EnhancedDict(dict_a).remove_key('a'))
+    print(EnhancedDict(dict_a).remove_value(1))

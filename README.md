@@ -156,7 +156,7 @@ An advanced dictionary hander providing various tools.
 ```python
 from wrenchbox.dict import EnhancedDict
 dict_a = {
-    'a': 1,
+    'a': 'a',
     'b': {
         'a': 1,
         'b': {
@@ -184,19 +184,23 @@ dict_b = {
 }
 print(dict_a)
 print(dict_b)
-print(EnhancedDict(dict_a).search('a')) # Search items with certain key
-print(EnhancedDict(dict_a).merge(dict_b)) # Merge two dicts
-print(EnhancedDict(dict_b).flatten()) # Flatten the dict and modify all nested keys into underscoped-connected form
-print(EnhancedDict(dict_a).format(lambda x: x + 10, lambda x: x == 1)) # Format values of the dict through a filter
+print(EnhancedDict(dict_a).search('a'))
+print(EnhancedDict(dict_a).merge(dict_b))
+print(EnhancedDict(dict_b).flatten())
+print(EnhancedDict(dict_a).format(lambda x: x + 10, lambda x: isinstance(x, int)))
+print(EnhancedDict(dict_a).remove_key('a'))
+print(EnhancedDict(dict_a).remove_value(1))
 ```
 
 ```json
-{'a': 1, 'b': {'a': 1, 'b': {'a': 1, 'b': [{'a': 1, 'b': 2}, {'a': 1, 'b': {'a': 1, 'b': 2}}]}}}
-{'a': 1, 'b': {'b': {'b': 2}}}
-[1, 1, 1, 1, 1, 1]
-{'a': 1, 'b': {'a': 1, 'b': {'a': 1, 'b': 2}}}
-{'a': 1, 'b_b_b': 2}
-{'a': 11, 'b': {'a': 11, 'b': {'a': 11, 'b': [{'a': 11, 'b': 2}, {'a': 11, 'b': {'a': 11, 'b': 2}}]}}}
+{"a": "a", "b": {"a": 1, "b": {"a": 1, "b": [{"a": 1, "b": 2}, {"a": 1, "b": {"a": 1, "b": 2}}]}}}
+{"a": 1, "b": {"b": {"b": 2}}}
+["a", 1, 1, 1, 1, 1]
+{"a": 1, "b": {"a": 1, "b": {"a": 1, "b": 2}}}
+{"a": 1, "b_b_b": 2}
+{"a": "a", "b": {"a": 11, "b": {"a": 11, "b": [{"a": 11, "b": 12}, {"a": 11, "b": {"a": 11, "b": 12}}]}}}
+{"b": {"b": {"b": [{"b": 2}, {"b": {"b": 2}}]}}}
+{"a": "a", "b": {"b": {"b": [{"b": 2}, {"b": {"b": 2}}]}}}
 ```
 
 ### IO Handler
@@ -272,11 +276,11 @@ Logs are colorized with the following default config:
 
 ```json
 {
-    DEBUG: 'cyan',
-    INFO: 'green',
-    WARNING: 'yellow',
-    ERROR: 'red',
-    CRITICAL: 'magenta'
+    DEBUG: "cyan",
+    INFO: "green",
+    WARNING: "yellow",
+    ERROR: "red",
+    CRITICAL: "magenta"
 }
 ```
 
@@ -380,6 +384,6 @@ print([i for i in S(open('test.txt', 'r').read()).v(chinese=True).words if i[1] 
 ```
 
 ```json
-[('是', 'v', 8), ('获取', 'v', 1)]
+[("是", "v", 8), ("获取", "v", 1)]
 ```
 
